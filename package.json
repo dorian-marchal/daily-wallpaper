@@ -1,6 +1,6 @@
 {
   "name": "daily-wallpaper",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Helps you set a daily wallpaper from a given source.",
   "main": "lib/daily-wallpaper.js",
   "scripts": {
