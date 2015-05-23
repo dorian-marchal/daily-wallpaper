@@ -18,10 +18,17 @@
   "homepage": "https://github.com/dorian-marchal/daily-wallpaper",
   "dependencies": {
     "request": "^2.55.0",
-    "wallpaper": "^1.0.0",
+    "wallpaper": "^1.0.0"
   },
   "keywords": [
     "daily",
     "wallpaper"
-  ]
+  ],
+  "devDependencies": {
+    "gulp-jasmine": "^2.0.1",
+    "gulp-notify": "^2.2.0",
+    "gulp-plumber": "^1.0.1",
+    "node-notifier": "^4.2.1",
+    "rimraf": "^2.3.4"
+  }
 }
