@@ -28,8 +28,16 @@ describe('DailyWallpaper', function () {
 
     });
 
-    beforeEach(function () {
+    beforeEach(function (done) {
         dailyWall = new DailyWallpaper();
+
+        // We reset the current wallpaper
+        wallpaper.set('/tmp/default-test-wallpaper.jpg', function (err) {
+            if (err) {
+                throw err;
+            }
+            done();
+        });
     });
 
     describe('setDirectory', function () {
@@ -68,7 +76,7 @@ describe('DailyWallpaper', function () {
 
             dailyWall.setDailyWallpaper(function (err, wallpaperSource) {
                 expect(wallpaperSource).not.toBeDefined();
-                expect(err.message).toEqual('Wallpaper URL not set');
+                expect(err.message).toEqual('Wallpaper source is not set');
                 done();
             });
         });
@@ -103,86 +111,155 @@ describe('DailyWallpaper', function () {
             });
         });
 
-        it('should return an error if the directory is not set', function (done) {
+        it('should return an error if getWallpaperSource return a source with a wrong path', function (done) {
 
-            dailyWall.getWallpaperSource = function (done) {
-                done(null, {
-                    url: wallURL,
-                });
-            };
-
-            dailyWall.setDailyWallpaper(function (err) {
-                expect(err.message).toEqual('Directory is not set');
-                done();
-            });
-        });
-
-        it('should return an error if the directory doesn\'t exist', function (done) {
-
-            dailyWall.setDirectory('/directory/that/should/not/exist/at/all');
-
-            dailyWall.getWallpaperSource = function (done) {
-                done(null, {
-                    url: wallURL,
-                });
-            };
-
-            dailyWall.setDailyWallpaper(function (err) {
-                expect(err.message).toEqual('Directory "' + dailyWall.directory + '" doesn\'t exist');
-                done();
-            });
-        });
-
-        it('should download and save the wallpaper in the right place, with the right filename', function (done) {
-
-            var extension = 'jpeg';
-            var fileName = new Date().toISOString().substr(0, 10) + '.' + extension;
-            var filePath = testDir + '/' + fileName;
-
-            dailyWall.setDirectory(testDir);
-
-
-            dailyWall.getWallpaperSource = function (done) {
-                done(null, {
-                    url: wallURL,
-                    extension: extension,
-                });
-            };
-
-            dailyWall.setDailyWallpaper(function () {
-                expect(fs.existsSync(filePath)).toBe(true);
-                done();
-            });
-        });
-
-        it('should set the wallpaper to the new saved file', function (done) {
-
-            var extension = 'jpeg';
-            var fileName = new Date().toISOString().substr(0, 10) + '.' + extension;
-            var filePath = testDir + '/' + fileName;
+            var sourcePath = '/path/that/should/not/exist/at/all';
 
             dailyWall.setDirectory(testDir);
 
             dailyWall.getWallpaperSource = function (done) {
                 done(null, {
-                    url: wallURL,
-                    extension: extension,
+                    path: sourcePath,
                 });
             };
 
-            dailyWall.setDailyWallpaper(function () {
+            dailyWall.setDailyWallpaper(function (err) {
+                expect(err.message).toEqual('The wallpaper file doesn\'t exist at ' + sourcePath);
+                done();
+            });
+        });
 
-                wallpaper.get(function (err, wallpaper) {
-                    if (err) {
-                        throw err;
-                    }
-                    expect(wallpaper).toEqual(filePath);
+
+        describe('when the source is an URL,', function () {
+
+            it('should download and save the wallpaper in the right place, with the right filename', function (done) {
+
+                var extension = 'jpeg';
+                var fileName = new Date().toISOString().substr(0, 10) + '.' + extension;
+                var filePath = testDir + '/' + fileName;
+
+                dailyWall.setDirectory(testDir);
+
+                dailyWall.getWallpaperSource = function (done) {
+                    done(null, {
+                        url: wallURL,
+                        extension: extension,
+                    });
+                };
+
+                dailyWall.setDailyWallpaper(function () {
+                    expect(fs.existsSync(filePath)).toBe(true);
                     done();
                 });
             });
 
+            it('should set the wallpaper to the downloaded one', function (done) {
 
+                var extension = 'jpeg';
+                var fileName = new Date().toISOString().substr(0, 10) + '.' + extension;
+                var filePath = testDir + '/' + fileName;
+
+                dailyWall.setDirectory(testDir);
+
+                dailyWall.getWallpaperSource = function (done) {
+                    done(null, {
+                        url: wallURL,
+                        extension: extension,
+                    });
+                };
+
+                dailyWall.setDailyWallpaper(function () {
+
+                    wallpaper.get(function (err, wallpaper) {
+                        if (err) {
+                            throw err;
+                        }
+                        expect(wallpaper).toEqual(filePath);
+                        done();
+                    });
+                });
+            });
+
+            it('should return an error if the directory is not set', function (done) {
+
+                dailyWall.getWallpaperSource = function (done) {
+                    done(null, {
+                        url: wallURL,
+                    });
+                };
+
+                dailyWall.setDailyWallpaper(function (err) {
+                    expect(err.message).toEqual('Directory is not set');
+                    done();
+                });
+            });
+
+            it('should return an error if the directory doesn\'t exist', function (done) {
+
+                dailyWall.setDirectory('/directory/that/should/not/exist/at/all');
+
+                dailyWall.getWallpaperSource = function (done) {
+                    done(null, {
+                        url: wallURL,
+                    });
+                };
+
+                dailyWall.setDailyWallpaper(function (err) {
+                    expect(err.message).toEqual('Directory "' + dailyWall.directory + '" doesn\'t exist');
+                    done();
+                });
+            });
         });
+
+        describe('when the source is a path,', function () {
+
+            it('should set the wallpaper to the one at the given path', function (done) {
+
+                var extension = 'jpeg';
+                var fileName = new Date().toISOString().substr(0, 10) + '.' + extension;
+                // This file exists locally as it is created in the previous test
+                var filePath = testDir + '/' + fileName;
+
+                dailyWall.setDirectory(testDir);
+
+                dailyWall.getWallpaperSource = function (done) {
+                    done(null, {
+                        path: filePath,
+                    });
+                };
+
+                dailyWall.setDailyWallpaper(function () {
+
+                    wallpaper.get(function (err, wallpaper) {
+                        if (err) {
+                            throw err;
+                        }
+                        expect(wallpaper).toEqual(filePath);
+                        done();
+                    });
+                });
+            });
+
+            it('shouldn\'t return an error if the directory is not set', function (done) {
+
+                var extension = 'jpeg';
+                var fileName = new Date().toISOString().substr(0, 10) + '.' + extension;
+                // This file exists locally as it is created in the previous test
+                var filePath = testDir + '/' + fileName;
+
+                dailyWall.getWallpaperSource = function (done) {
+                    done(null, {
+                        path: filePath,
+                    });
+                };
+
+                dailyWall.setDailyWallpaper(function (err) {
+                    expect(err).not.toBeDefined();
+                    done();
+                });
+            });
+        });
+
     });
 
     afterAll(function (done) {

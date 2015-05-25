@@ -10,11 +10,17 @@ npm install --save daily-wallpaper
 
 ### Usage
 
+__Initialization :__
+
 ```js
 var DailyWallpaper = require('daily-wallpaper');
 
 var dailyWall = new DailyWallpaper();
+```
 
+__Remote wallpapers :__
+
+```js
 // Set the directory for the downloaded wallpapers
 dailyWall.setDirectory('/tmp');
 
@@ -38,6 +44,36 @@ dailyWall.getWallpaperSource = function (done) {
         extension: 'jpg',
     });
 };
+```
+
+__Local wallpapers :__
+
+```js
+
+// Implements the getWallpaperSource method.
+// This method must call the 'done' callback with an object representing the
+// wallpaper of the current day as the second parameter.
+// The first parameter is reserved to an eventual error.
+dailyWall.getWallpaperSource = function (done) {
+    var wallpapers = [
+        '/tmp/wallpapers/1.jpg',
+        '/tmp/wallpapers/2.jpg',
+        '/tmp/wallpapers/3.jpg',
+        '/tmp/wallpapers/4.jpg',
+        '/tmp/wallpapers/5.jpg',
+        '/tmp/wallpapers/6.jpg',
+        '/tmp/wallpapers/7.jpg',
+    ];
+
+    return done(null, {
+        path: wallpapers[new Date().getDay()],
+    });
+};
+```
+
+__Setting the wallpaper :__
+
+```js
 
 // Set the daily wallpaper.
 // The passed callback is called with an error as parameter if something went wrong
