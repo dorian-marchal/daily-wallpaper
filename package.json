@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/dorian-marchal/daily-wallpaper",
   "dependencies": {
-    "request": "^2.55.0",
-    "wallpaper": "^1.0.0"
+    "request": "^2.88.0",
+    "wallpaper": "^4.4.1"
   },
   "keywords": [
     "daily",
