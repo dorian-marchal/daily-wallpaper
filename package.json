@@ -4,7 +4,7 @@
   "description": "Helps you set a daily wallpaper from a given source.",
   "main": "lib/daily-wallpaper.js",
   "scripts": {
-    "test": "gulp test"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -23,12 +23,5 @@
   "keywords": [
     "daily",
     "wallpaper"
-  ],
-  "devDependencies": {
-    "gulp-jasmine": "^2.0.1",
-    "gulp-notify": "^2.2.0",
-    "gulp-plumber": "^1.0.1",
-    "node-notifier": "^4.2.1",
-    "rimraf": "^2.3.4"
-  }
+  ]
 }
